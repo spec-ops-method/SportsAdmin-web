@@ -1,0 +1,28 @@
+name: Create Issues for Spec Changes
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'spec/**/*.md'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'spec/**/*.md'
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  spec-change-issues:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: spec-ops-method/spec-ops-action@v1
+        with:
+          file-pattern: 'spec/**/*.md'
+          labels: 'spec-change'
