@@ -4,7 +4,7 @@ A modern web application rebuild of [Sports Administrator](https://github.com/ru
 
 ## Background
 
-Sports Administrator was originally developed around 2000 by Andrew Rogers for Christian Outreach College, Brisbane. It was commercially distributed as a Microsoft Access 97 application before being open-sourced and migrated to Access 2010+ by James Rudd in 2017. The application manages the complete lifecycle of a school sports carnival — event setup, competitor registration, results entry, automatic place and points calculation, promotion through heats to finals, record tracking, and reporting.
+Sports Administrator was originally developed around 2000 by Andrew Rogers for Christian Outreach College, Brisbane (now known as [Citipointe Christian College](https://citipointe.qld.edu.au/)). It was commercially distributed as a Microsoft Access 97 application before being open-sourced and migrated to Access 2010+ by James Rudd in 2017. The application manages the complete lifecycle of a school sports carnival — event setup, competitor registration, results entry, automatic place and points calculation, promotion through heats to finals, record tracking, and reporting.
 
 The goal of this project is to rebuild Sports Administrator as a modern web application while preserving full functional parity with the original.
 
@@ -20,11 +20,11 @@ The goal of this project is to rebuild Sports Administrator as a modern web appl
 
 Contains a comprehensive, modular specification suite that describes the existing system in enough detail to rebuild it on a modern web stack. The spec covers the data model, carnival lifecycle, competitor management, events and heats, results and scoring, reporting, HTML export, UI flows, deployment, and security. It includes 145 testable functions for verifying the rebuilt system against the original.
 
-This project follows **spec-first development** — all functional changes are documented in the spec before they are implemented in code. See [spec/README.md](spec/README.md) for the full workflow and document index.
+This project follows **spec-first development** — all functional changes are documented in the spec before they are implemented in code. See [spec/README.md](spec/README.md) for the full workflow and document index. Any changes to the spec files in the `spec/` directory will automatically generate new issues via the [SpecOps workflow](.github/workflows/spec-ops.yml) set up in this directory.
 
 ### `legacy/`
 
-A git submodule pointing to the [original SportsAdmin repository](https://github.com/ruddj/SportsAdmin). This provides direct access to the Access database source for reference during development.
+A git submodule pointing to the [original SportsAdmin repository](https://github.com/ruddj/SportsAdmin). This provides direct access to the legacy Access database source for reference during development.
 
 ## What the Application Does
 
