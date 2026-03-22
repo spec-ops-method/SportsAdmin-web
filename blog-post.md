@@ -105,9 +105,9 @@ Now, whether a new version of this application targets Node.js, or Ruby, or Pyth
 
 Finally, we added infrastructure to support specification-first development — the practice of updating the spec before changing the code. We added:
 
-- A README serving as a contributor guide with the spec-first workflow, instructions for adding/modifying/removing features, and guidance for using the documents with AI coding tools
+- [A README](spec/README.md) serving as a contributor guide with the spec-first workflow, instructions for adding/modifying/removing features, and guidance for using the documents with AI coding tools
 - `Last Updated` metadata on every document for change tracking
-- A functional parity test list (145 items) that serves as both a rebuild verification checklist and a living inventory of system capabilities
+- [A functional parity test list](spec/12-functional-parity-tests.md) (145 items) that serves as both a rebuild verification checklist and a living inventory of system capabilities
 - [A GitHub action that supports spec-first development](https://github.com/spec-ops-method/spec-ops-action), which creates a new issue in the GitHub repository for this work, any time one of the spec documents changes and that change is committed to the repo.
 
 ## What We Learned
