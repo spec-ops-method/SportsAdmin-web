@@ -31,6 +31,10 @@ This directory contains the authoritative specification for Sports Administrator
 
 This project follows **specification-first development**. The spec documents are not just initial blueprints — they are the living, authoritative description of what the system does and how it behaves.
 
+### Automated Tracking
+
+A GitHub Actions workflow ([`.github/workflows/spec-ops.yml`](../.github/workflows/spec-ops.yml)) powered by [spec-ops-action](https://github.com/spec-ops-method/spec-ops-action) monitors the `spec/` directory. Whenever a spec file is added, modified, or deleted on `main` (or in a pull request targeting `main`), the workflow automatically creates a GitHub issue for each changed file — including the diff, a link to the file, and a link to the commit or PR. These issues are labelled `spec-change` and serve as the work items that track the corresponding implementation updates.
+
 ### The Rule
 
 > **Change the spec first, then change the code.**
@@ -40,9 +44,11 @@ Every functional change — new feature, behaviour modification, bug fix that al
 ```
 1. Propose the change in the relevant spec document(s)
 2. Review and approve the spec change
-3. Implement the code to match the updated spec
-4. Verify the implementation against the spec
-5. Update Doc 12 (Functional Parity Tests) if the change adds, removes, or modifies a testable function
+3. Merge the spec change — the spec-ops workflow automatically creates a tracking issue
+4. Implement the code to match the updated spec, referencing the generated issue
+5. Verify the implementation against the spec
+6. Update Doc 12 (Functional Parity Tests) if the change adds, removes, or modifies a testable function
+7. Close the tracking issue when implementation is complete and verified
 ```
 
 ### Why Spec-First?
@@ -50,6 +56,7 @@ Every functional change — new feature, behaviour modification, bug fix that al
 - **Shared understanding** — the spec is readable by humans, AI coding tools, and reviewers. Everyone works from the same definition.
 - **AI-ready** — an AI coding assistant can be given one or more spec documents and produce an implementation without ambiguity.
 - **Change impact is visible** — a diff to a spec document makes the scope of a change clear before any code is written.
+- **Automatic work tracking** — the spec-ops workflow creates an issue for every spec change, so no implementation update is forgotten.
 - **Testability** — Doc 12 provides a concrete checklist. If a feature isn't in the spec and test list, it shouldn't be in the code. If it should be in the code, it should be in the spec first.
 
 ---
