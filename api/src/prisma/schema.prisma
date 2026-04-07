@@ -124,6 +124,14 @@ model HousePointsExtra {
 
 // ─── Reference / Seed tables ──────────────────────────────────────────────────
 
+model ReportType {
+  id          Int    @id @default(autoincrement())
+  rCode       Int    @unique @map("r_code")
+  description String @db.VarChar(50)
+
+  @@map("report_types")
+}
+
 model Unit {
   id            Int     @id @default(autoincrement())
   name          String  @unique
@@ -198,6 +206,7 @@ model EventType {
   laneCount            Int      @default(0) @map("lane_count")
   reportTypeId         Int?     @map("report_type_id")
   include              Boolean  @default(true)
+  flag                 Boolean  @default(true)
   entrantCount         Int      @default(1) @map("entrant_count")
   placesAcrossAllHeats Boolean  @default(false) @map("places_across_all_heats")
   meetManagerEvent     String?  @map("meet_manager_event") @db.VarChar(10)

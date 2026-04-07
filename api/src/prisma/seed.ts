@@ -32,6 +32,19 @@ async function main() {
     skipDuplicates: true,
   });
 
+  // Report types (Doc 07 — marshalling/lane list formats)
+  await prisma.reportType.createMany({
+    data: [
+      { id: 1, rCode: 1, description: 'Limited Lanes (e.g., 100m sprint)' },
+      { id: 2, rCode: 2, description: 'Unlimited Lanes (e.g., 800m, 1500m)' },
+      { id: 3, rCode: 3, description: 'Field (3 attempts)' },
+      { id: 4, rCode: 4, description: 'Field (High Jump)' },
+      { id: 5, rCode: 5, description: 'Results Entry Sheets' },
+      { id: 6, rCode: 6, description: 'Relay (Limited Lanes)' },
+    ],
+    skipDuplicates: true,
+  });
+
   // Final level labels (Doc 05 — display names for final levels 0–7)
   await prisma.finalLevelLabel.createMany({
     data: [

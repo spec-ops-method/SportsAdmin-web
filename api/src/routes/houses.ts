@@ -153,6 +153,7 @@ const updateSchema = z.object({
   name: z.string().trim().min(1).max(50).optional(),
   houseTypeId: z.number().int().nullable().optional(),
   include: z.boolean().optional(),
+  flag: z.boolean().optional(),
   lane: z.number().int().nullable().optional(),
   competitionPool: z.number().int().nullable().optional(),
   details: z.string().nullable().optional(),

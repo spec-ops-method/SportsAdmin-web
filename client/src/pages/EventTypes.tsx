@@ -43,6 +43,25 @@ function IncludeToggle({
   return <input type="checkbox" checked={checked} onChange={handle} disabled={busy} />;
 }
 
+function FlagToggle({
+  checked,
+  onChange,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => Promise<void>;
+}) {
+  const [busy, setBusy] = useState(false);
+  async function handle(e: React.ChangeEvent<HTMLInputElement>) {
+    setBusy(true);
+    try {
+      await onChange(e.target.checked);
+    } finally {
+      setBusy(false);
+    }
+  }
+  return <input type="checkbox" checked={checked} onChange={handle} disabled={busy} title="Flag — include in report queries" />;
+}
+
 export default function EventTypes() {
   const { token } = useAuth();
   const { activeCarnival } = useCarnival();
@@ -203,6 +222,7 @@ export default function EventTypes() {
               <th className={styles.right}>Divisions</th>
               <th className={styles.right}>Heats</th>
               <th>Include</th>
+              <th>Flag</th>
               <th />
             </tr>
           </thead>
@@ -223,6 +243,20 @@ export default function EventTypes() {
                         'PATCH',
                         token,
                         { include: val },
+                      );
+                      refetch();
+                    }}
+                  />
+                </td>
+                <td>
+                  <FlagToggle
+                    checked={et.flag}
+                    onChange={async (val) => {
+                      await apiRequest(
+                        `${API}/carnivals/${cid}/event-types/${et.id}`,
+                        'PATCH',
+                        token,
+                        { flag: val },
                       );
                       refetch();
                     }}

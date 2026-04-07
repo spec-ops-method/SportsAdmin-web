@@ -19,6 +19,14 @@ export default function Carnivals() {
   const [formError, setFormError] = useState('');
   const nameRef = useRef<HTMLInputElement>(null);
 
+  // Import state
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const [importPreview, setImportPreview] = useState<{ version: string; carnivalName: string; counts: Record<string, number> } | null>(null);
+  const [importName, setImportName] = useState('');
+  const [importError, setImportError] = useState('');
+  const [importing, setImporting] = useState(false);
+  const importFileRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     if (showForm) nameRef.current?.focus();
   }, [showForm]);
@@ -62,17 +70,139 @@ export default function Carnivals() {
     }
   }
 
+  function handleExport(c: CarnivalSummary) {
+    // Trigger file download via hidden link
+    const url = `${API}/carnivals/${c.id}/export`;
+    const a = document.createElement('a');
+    a.href = url;
+    if (token) {
+      // Use fetch + blob to carry auth header
+      void (async () => {
+        try {
+          const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+          if (!res.ok) throw new Error(await res.text());
+          const blob = await res.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = blobUrl;
+          const disposition = res.headers.get('Content-Disposition') ?? '';
+          const match = disposition.match(/filename="([^"]+)"/);
+          link.download = match ? match[1] : `carnival-${c.id}.json`;
+          link.click();
+          URL.revokeObjectURL(blobUrl);
+        } catch (err) {
+          alert((err as Error).message);
+        }
+      })();
+    } else {
+      a.click();
+    }
+  }
+
+  async function handleImportFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] ?? null;
+    setImportFile(file);
+    setImportPreview(null);
+    setImportError('');
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await fetch(`${API}/carnivals/import/preview`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token ?? ''}` },
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error?.message ?? 'Preview failed');
+      setImportPreview(data);
+      setImportName(data.carnivalName);
+    } catch (err) {
+      setImportError((err as Error).message);
+    }
+  }
+
+  async function handleImportConfirm() {
+    if (!importFile) return;
+    setImporting(true);
+    setImportError('');
+    const formData = new FormData();
+    formData.append('file', importFile);
+    if (importName) formData.append('name', importName);
+    try {
+      const res = await fetch(`${API}/carnivals/import`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token ?? ''}` },
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error?.message ?? 'Import failed');
+      setImportFile(null);
+      setImportPreview(null);
+      setImportName('');
+      if (importFileRef.current) importFileRef.current.value = '';
+      refetch();
+    } catch (err) {
+      setImportError((err as Error).message);
+    } finally {
+      setImporting(false);
+    }
+  }
+
   return (
     <div className={styles.container}>
       <header className={styles.header}>
         <h1>Carnivals</h1>
-        <button className={styles.btnPrimary} onClick={() => setShowForm((v) => !v)}>
-          {showForm ? 'Cancel' : '+ New Carnival'}
-        </button>
+        <div className={styles.headerActions}>
+          <button className={styles.btnSecondary} onClick={() => importFileRef.current?.click()}>
+            Import Carnival
+          </button>
+          <input
+            ref={importFileRef}
+            type="file"
+            accept=".json"
+            style={{ display: 'none' }}
+            onChange={(e) => void handleImportFileChange(e)}
+          />
+          <button className={styles.btnPrimary} onClick={() => setShowForm((v) => !v)}>
+            {showForm ? 'Cancel' : '+ New Carnival'}
+          </button>
+        </div>
       </header>
 
+      {importPreview && (
+        <div className={styles.importPanel}>
+          <h3>Import Preview — {importPreview.carnivalName}</h3>
+          <ul className={styles.importCounts}>
+            {Object.entries(importPreview.counts).map(([k, v]) => (
+              <li key={k}><strong>{v}</strong> {k}</li>
+            ))}
+          </ul>
+          <label className={styles.fieldLabel}>
+            Carnival name
+            <input
+              className={styles.input}
+              value={importName}
+              onChange={(e) => setImportName(e.target.value)}
+            />
+          </label>
+          {importError && <p className={styles.formError}>{importError}</p>}
+          <div className={styles.formActions}>
+            <button className={styles.btnPrimary} onClick={() => void handleImportConfirm()} disabled={importing}>
+              {importing ? 'Importing…' : 'Confirm Import'}
+            </button>
+            <button className={styles.btnSecondary} onClick={() => { setImportPreview(null); setImportFile(null); }}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {!importPreview && importError && <p className={styles.formError}>{importError}</p>}
+
       {showForm && (
-        <form className={styles.form} onSubmit={handleCreate}>
+        <form className={styles.form} onSubmit={(e) => void handleCreate(e)}>
           <input ref={nameRef} className={styles.input} placeholder="Carnival name" required />
           {formError && <p className={styles.formError}>{formError}</p>}
           <button type="submit" className={styles.btnPrimary} disabled={submitting}>
@@ -112,8 +242,14 @@ export default function Carnivals() {
                 Open
               </button>
               <button
+                className={styles.btnLink}
+                onClick={() => handleExport(c)}
+              >
+                Export
+              </button>
+              <button
                 className={`${styles.btnLink} ${styles.danger}`}
-                onClick={() => handleDelete(c)}
+                onClick={() => void handleDelete(c)}
               >
                 Delete
               </button>

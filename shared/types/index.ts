@@ -75,6 +75,7 @@ export interface House {
   name: string;
   houseTypeId: number | null;
   include: boolean;
+  flag: boolean;
   details: string | null;
   lane: number | null;
   competitionPool: number | null;
@@ -204,6 +205,7 @@ export interface EventType {
   unitsDisplay: string;
   laneCount: number;
   include: boolean;
+  flag: boolean;
   entrantCount: number;
   divisionCount: number;
   heatCount: number;
@@ -338,6 +340,7 @@ export interface EventType {
   laneCount: number;
   reportTypeId: number | null;
   include: boolean;
+  flag: boolean;
   entrantCount: number;
   placesAcrossAllHeats: boolean;
   meetManagerEvent: string | null;
@@ -489,4 +492,111 @@ export interface HeatCompleteResponse {
 export interface BulkRecalcResponse {
   compEventsUpdated: number;
   competitorsUpdated: number;
+}
+
+// ─── Phase 7: Reporting ───────────────────────────────────────────────────────
+
+export interface HousePointsRow {
+  houseCode: string;
+  houseName: string;
+  eventPoints: number;
+  extraPoints: number;
+  grandTotal: number;
+  percentage: number;
+}
+
+export interface ProgramEvent {
+  eventNumber: number | null;
+  eventTime: string | null;
+  eventTypeDescription: string;
+  age: string;
+  sex: string;
+  finalLevel: number;
+  finalLevelLabel: string;
+  heatNumber: number;
+  status: string;
+}
+
+export interface MarshallingCompetitor {
+  lane: number | null;
+  name: string;
+  house: string;
+  houseCode: string;
+}
+
+export interface MarshallingHeat {
+  rCode: number;
+  eventType: string;
+  age: string;
+  sex: string;
+  finalLevel: number;
+  finalLevelLabel: string;
+  heatNumber: number;
+  eventNumber: number | null;
+  eventTime: string | null;
+  status: string;
+  record: string | null;
+  recordHolder: string | null;
+  units: string;
+  competitors: MarshallingCompetitor[];
+}
+
+export interface AgeChampionRow {
+  fullName: string;
+  ageSexDivision: string;
+  houseName: string;
+  totalPoints: number;
+}
+
+export interface StatisticsRow {
+  [key: string]: string | number | null;
+}
+
+export interface CumulativePointsData {
+  eventNumbers: number[];
+  series: Array<{ house: string; cumulativePoints: number[] }>;
+}
+
+export interface ReportType {
+  id: number;
+  rCode: number;
+  description: string;
+}
+
+// ─── Phase 6: Carnival Export / Import ────────────────────────────────────────
+
+export interface CarnivalExportBundle {
+  version: string;
+  exportedAt: string;
+  carnival: Carnival;
+  settings: CarnivalSettings | null;
+  houses: unknown[];
+  housePointsExtra: unknown[];
+  eventTypes: unknown[];
+  events: unknown[];
+  finalLevels: unknown[];
+  heats: unknown[];
+  laneTemplates: unknown[];
+  lanePromotionAllocs: unknown[];
+  lanes: unknown[];
+  pointScales: unknown[];
+  pointScaleEntries: unknown[];
+  competitors: unknown[];
+  competitorEventAges: unknown[];
+  compEvents: unknown[];
+  records: unknown[];
+}
+
+export interface CarnivalImportPreviewResponse {
+  version: string;
+  carnivalName: string;
+  counts: {
+    houses: number;
+    eventTypes: number;
+    events: number;
+    heats: number;
+    competitors: number;
+    pointScales: number;
+    records: number;
+  };
 }

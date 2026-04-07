@@ -7,6 +7,25 @@ import styles from './Houses.module.css';
 
 const API = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
 
+function FlagToggle({
+  checked,
+  onChange,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => Promise<void>;
+}) {
+  const [busy, setBusy] = useState(false);
+  async function handle(e: React.ChangeEvent<HTMLInputElement>) {
+    setBusy(true);
+    try {
+      await onChange(e.target.checked);
+    } finally {
+      setBusy(false);
+    }
+  }
+  return <input type="checkbox" checked={checked} onChange={handle} disabled={busy} title="Flag — include in report queries" />;
+}
+
 export default function Houses() {
   const { token } = useAuth();
   const { activeCarnival } = useCarnival();
@@ -135,6 +154,7 @@ export default function Houses() {
               <th>Code</th>
               <th>Name</th>
               <th className={styles.right}>Points</th>
+              <th>Flag</th>
               <th />
             </tr>
           </thead>
@@ -144,9 +164,23 @@ export default function Houses() {
                 <td><code>{h.code}</code></td>
                 <td>{h.name}</td>
                 <td className={styles.right}>{h.totalPoints ?? 0}</td>
+                <td>
+                  <FlagToggle
+                    checked={h.flag}
+                    onChange={async (val) => {
+                      await apiRequest(
+                        `${API}/carnivals/${cid}/houses/${h.id}`,
+                        'PUT',
+                        token,
+                        { flag: val },
+                      );
+                      refetch();
+                    }}
+                  />
+                </td>
                 <td className={styles.actions}>
                   <button className={styles.btnLink} onClick={() => openEdit(h)}>Edit</button>
-                  <button className={`${styles.btnLink} ${styles.danger}`} onClick={() => handleDelete(h)}>
+                  <button className={`${styles.btnLink} ${styles.danger}`} onClick={() => void handleDelete(h)}>
                     Delete
                   </button>
                 </td>
