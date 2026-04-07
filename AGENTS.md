@@ -16,3 +16,21 @@ Do not build:
 - Access-specific plumbing (`_AlwaysOpen`, `Inventory Attached Tables`, `USysRibbons`, runtime schema checks).
 
 The `legacy/` directory is a git submodule of the original Access application. Use it for reference only.
+
+## Commit Message Conventions
+
+Use [Conventional Commits](https://www.conventionalcommits.org/):
+
+```text
+type: description
+
+[optional body]
+```
+
+**Types:** `feat`, `fix`, `docs`, `refactor`, `test`, `chore`
+
+## Code Quality
+
+- Write tests for new functionality
+- Follow language-specific conventions (see instruction files)
+- Keep commits atomic and reviewable
