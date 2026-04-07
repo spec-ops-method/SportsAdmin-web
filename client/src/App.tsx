@@ -10,6 +10,10 @@ import Houses from './pages/Houses';
 import CarnivalSettings from './pages/CarnivalSettings';
 import Competitors from './pages/Competitors';
 import CompetitorEventAgeConfig from './pages/CompetitorEventAgeConfig';
+import EventTypes from './pages/EventTypes';
+import EventTypeDetail from './pages/EventTypeDetail';
+import HeatDetail from './pages/HeatDetail';
+import EventOrder from './pages/EventOrder';
 
 export default function App() {
   const { user, loading } = useAuth();
@@ -41,6 +45,10 @@ export default function App() {
                   <Route path="/houses" element={<Houses />} />
                   <Route path="/competitors" element={<Competitors />} />
                   <Route path="/carnivals/:id/age-mapping" element={<CompetitorEventAgeConfig />} />
+                  <Route path="/event-types" element={<EventTypes />} />
+                  <Route path="/event-types/:id" element={<EventTypeDetail />} />
+                  <Route path="/heats/:id" element={<HeatDetail />} />
+                  <Route path="/event-order" element={<EventOrder />} />
                 </Routes>
               </AppShell>
             </ProtectedRoute>

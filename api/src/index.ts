@@ -7,6 +7,8 @@ import authRouter from './routes/auth';
 import carnivalsRouter from './routes/carnivals';
 import housesRouter from './routes/houses';
 import competitorsRouter from './routes/competitors';
+import eventTypesRouter from './routes/eventTypes';
+import heatsRouter from './routes/heats';
 import { authenticate } from './middleware/auth';
 import { errorHandler } from './middleware/errors';
 import { generalLimiter } from './middleware/rateLimiter';
@@ -35,6 +37,8 @@ app.use('/auth', authRouter);
 app.use('/carnivals', carnivalsRouter);
 app.use('/carnivals/:carnivalId/houses', housesRouter);
 app.use('/carnivals', authenticate, competitorsRouter);
+app.use('/carnivals', authenticate, eventTypesRouter);
+app.use('/carnivals', authenticate, heatsRouter);
 
 // ─── Error handling ───────────────────────────────────────────────────────────
 

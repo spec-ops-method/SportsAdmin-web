@@ -56,6 +56,8 @@ model Carnival {
   users               UserCarnival[]
   competitors         Competitor[]
   competitorEventAges CompetitorEventAge[]
+  eventTypes          EventType[]
+  lanes               Lane[]
 
   @@map("carnivals")
 }
@@ -101,6 +103,8 @@ model House {
   houseType       HouseType?       @relation(fields: [houseTypeId], references: [id])
   pointsExtra     HousePointsExtra[]
   competitors     Competitor[]
+  recordEvents    Event[]          @relation("EventRecordHouse")
+  lanes           Lane[]           @relation("LaneHouse")
 
   @@unique([carnivalId, code])
   @@map("houses")
@@ -164,6 +168,7 @@ model Competitor {
 
   carnival    Carnival  @relation(fields: [carnivalId], references: [id], onDelete: Cascade)
   house       House     @relation(fields: [houseId], references: [id], onDelete: Restrict)
+  compEvents  CompEvent[]
 
   @@map("competitors")
 }
@@ -180,4 +185,149 @@ model CompetitorEventAge {
 
   @@id([carnivalId, competitorAge, eventAge])
   @@map("competitor_event_age")
+}
+
+// ─── Events & Heats ──────────────────────────────────────────────────────────
+
+model EventType {
+  id                   Int      @id @default(autoincrement())
+  carnivalId           Int      @map("carnival_id")
+  description          String   @db.VarChar(30)
+  units                String   @db.VarChar(20)
+  laneCount            Int      @default(0) @map("lane_count")
+  reportTypeId         Int?     @map("report_type_id")
+  include              Boolean  @default(true)
+  entrantCount         Int      @default(1) @map("entrant_count")
+  placesAcrossAllHeats Boolean  @default(false) @map("places_across_all_heats")
+  meetManagerEvent     String?  @map("meet_manager_event") @db.VarChar(10)
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  carnival        Carnival               @relation(fields: [carnivalId], references: [id], onDelete: Cascade)
+  events          Event[]
+  finalLevels     FinalLevel[]
+  laneTemplates   LaneTemplate[]
+  lanePromoAllocs LanePromotionAllocation[]
+
+  @@unique([carnivalId, description])
+  @@map("event_types")
+}
+
+model Event {
+  id              Int      @id @default(autoincrement())
+  eventTypeId     Int      @map("event_type_id")
+  sex             String   @db.Char(1)
+  age             String   @db.VarChar(10)
+  include         Boolean  @default(true)
+  record          String?  @db.VarChar(20)
+  numericRecord   Float?   @map("numeric_record")
+  recordName      String?  @map("record_name") @db.VarChar(60)
+  recordHouseId   Int?     @map("record_house_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  eventType   EventType @relation(fields: [eventTypeId], references: [id], onDelete: Cascade)
+  recordHouse House?    @relation("EventRecordHouse", fields: [recordHouseId], references: [id], onDelete: SetNull)
+  heats       Heat[]
+  compEvents  CompEvent[]
+
+  @@unique([eventTypeId, sex, age])
+  @@map("events")
+}
+
+model FinalLevel {
+  eventTypeId   Int     @map("event_type_id")
+  finalLevel    Int     @map("final_level")
+  numHeats      Int     @default(1) @map("num_heats")
+  pointScale    String? @map("point_scale") @db.VarChar(30)
+  promotionType String  @default("NONE") @map("promotion_type") @db.VarChar(20)
+  useTimes      Boolean @default(true) @map("use_times")
+  promoteCount  Int     @default(0) @map("promote_count")
+  effectsRecords Boolean @default(true) @map("effects_records")
+
+  eventType EventType @relation(fields: [eventTypeId], references: [id], onDelete: Cascade)
+
+  @@id([eventTypeId, finalLevel])
+  @@map("final_levels")
+}
+
+model Heat {
+  id                 Int      @id @default(autoincrement())
+  eventId            Int      @map("event_id")
+  heatNumber         Int      @map("heat_number")
+  finalLevel         Int      @map("final_level")
+  pointScale         String?  @map("point_scale") @db.VarChar(30)
+  promotionType      String   @default("NONE") @map("promotion_type") @db.VarChar(20)
+  useTimes           Boolean  @default(true) @map("use_times")
+  effectsRecords     Boolean  @default(true) @map("effects_records")
+  completed          Boolean  @default(false)
+  status             String   @default("future") @db.VarChar(20)
+  eventNumber        Int?     @map("event_number")
+  eventTime          String?  @map("event_time") @db.VarChar(10)
+  dontOverridePlaces Boolean  @default(false) @map("dont_override_places")
+  allNames           Boolean  @default(false) @map("all_names")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  event      Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  compEvents CompEvent[]
+
+  @@map("heats")
+}
+
+model CompEvent {
+  id            Int      @id @default(autoincrement())
+  competitorId  Int      @map("competitor_id")
+  eventId       Int      @map("event_id")
+  heatId        Int      @map("heat_id")
+  heatNumber    Int      @map("heat_number")
+  finalLevel    Int      @map("final_level")
+  lane          Int?
+  place         Int      @default(0)
+  result        String?  @db.VarChar(20)
+  numericResult Float    @default(0) @map("numeric_result")
+  points        Float    @default(0)
+  memo          String?  @db.VarChar(100)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  competitor Competitor @relation(fields: [competitorId], references: [id], onDelete: Cascade)
+  event      Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  heat       Heat       @relation(fields: [heatId], references: [id], onDelete: Cascade)
+
+  @@unique([competitorId, eventId, finalLevel, heatNumber])
+  @@map("comp_events")
+}
+
+model LaneTemplate {
+  eventTypeId Int @map("event_type_id")
+  laneNumber  Int @map("lane_number")
+
+  eventType EventType @relation(fields: [eventTypeId], references: [id], onDelete: Cascade)
+
+  @@id([eventTypeId, laneNumber])
+  @@map("lane_templates")
+}
+
+model Lane {
+  carnivalId Int  @map("carnival_id")
+  laneNumber Int  @map("lane_number")
+  houseId    Int? @map("house_id")
+
+  carnival Carnival @relation(fields: [carnivalId], references: [id], onDelete: Cascade)
+  house    House?   @relation("LaneHouse", fields: [houseId], references: [id], onDelete: SetNull)
+
+  @@id([carnivalId, laneNumber])
+  @@map("lanes")
+}
+
+model LanePromotionAllocation {
+  eventTypeId Int @map("event_type_id")
+  place       Int
+  lane        Int
+
+  eventType EventType @relation(fields: [eventTypeId], references: [id], onDelete: Cascade)
+
+  @@id([eventTypeId, place])
+  @@map("lane_promotion_allocations")
 }

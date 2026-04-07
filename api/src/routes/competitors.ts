@@ -786,7 +786,25 @@ router.get(
       });
       if (!competitor) throw new NotFoundError('Competitor', competitorId);
 
-      res.json({ ...formatCompetitor(competitor as CompetitorRow), events: [] });
+      const compEvents = await (prisma as any).compEvent.findMany({
+        where: { competitorId },
+        include: { event: { include: { eventType: true } } },
+        orderBy: [{ finalLevel: 'desc' }, { heatNumber: 'asc' }],
+      });
+
+      const events = compEvents.map((ce: any) => ({
+        compEventId: ce.id,
+        eventTypeDescription: ce.event.eventType.description,
+        finalLevel: ce.finalLevel,
+        heat: ce.heatNumber,
+        lane: ce.lane,
+        place: ce.place || null,
+        result: ce.result,
+        points: ce.points,
+        memo: ce.memo,
+      }));
+
+      res.json({ ...formatCompetitor(competitor as CompetitorRow), events });
     } catch (err) {
       next(err);
     }

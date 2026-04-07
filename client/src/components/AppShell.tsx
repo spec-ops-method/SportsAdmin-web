@@ -22,6 +22,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
               <span className={styles.activeName}>{activeCarnival.name}</span>
               <Link to="/houses" className={styles.navLink}>Houses</Link>
               <Link to="/competitors" className={styles.navLink}>Competitors</Link>
+              <Link to="/event-types" className={styles.navLink}>Events</Link>
+              <Link to="/event-order" className={styles.navLink}>Programme</Link>
               <Link to={`/carnivals/${activeCarnival.id}/age-mapping`} className={styles.navLink}>Age Mapping</Link>
               <Link to={`/carnivals/${activeCarnival.id}/settings`} className={styles.navLink}>Settings</Link>
             </>

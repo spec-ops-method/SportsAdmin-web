@@ -194,6 +194,121 @@ export interface ImportCommitResponse {
   errors: number;
 }
 
+// ─── Event Types ─────────────────────────────────────────────────────────────
+
+export interface EventType {
+  id: number;
+  carnivalId: number;
+  description: string;
+  units: string;
+  unitsDisplay: string;
+  laneCount: number;
+  include: boolean;
+  entrantCount: number;
+  divisionCount: number;
+  heatCount: number;
+}
+
+export interface EventDivision {
+  id: number;
+  eventTypeId: number;
+  sex: string;
+  age: string;
+  include: boolean;
+  record: string | null;
+  numericRecord: number | null;
+  recordName: string | null;
+  heatCount: number;
+}
+
+export interface FinalLevel {
+  eventTypeId: number;
+  finalLevel: number;
+  label: string;
+  numHeats: number;
+  pointScale: string | null;
+  promotionType: 'NONE' | 'Smooth' | 'Staggered';
+  useTimes: boolean;
+  promoteCount: number;
+  effectsRecords: boolean;
+}
+
+export interface EventTypeDetail extends EventType {
+  divisions: EventDivision[];
+  finalLevels: FinalLevel[];
+}
+
+export interface Heat {
+  id: number;
+  eventId: number;
+  heatNumber: number;
+  finalLevel: number;
+  finalLevelLabel: string;
+  pointScale: string | null;
+  completed: boolean;
+  status: 'future' | 'active' | 'completed' | 'promoted';
+  eventNumber: number | null;
+  eventTime: string | null;
+  competitorCount: number;
+}
+
+export interface HeatDetailResponse {
+  id: number;
+  eventId: number;
+  heatNumber: number;
+  finalLevel: number;
+  finalLevelLabel: string;
+  pointScale: string | null;
+  completed: boolean;
+  status: 'future' | 'active' | 'completed' | 'promoted';
+  eventNumber: number | null;
+  eventTime: string | null;
+  competitorCount: number;
+  eventTypeId: number;
+  eventTypeDescription: string;
+  sex: string;
+  age: string;
+  units: string;
+  laneCount: number;
+  carnivalId: number;
+}
+
+export interface CompEvent {
+  id: number;
+  competitorId: number;
+  competitorFullName: string;
+  houseCode: string;
+  eventId: number;
+  heatId: number;
+  heatNumber: number;
+  finalLevel: number;
+  lane: number | null;
+  place: number;
+  result: string | null;
+  numericResult: number;
+  points: number;
+  memo: string | null;
+}
+
+export interface EventOrderItem {
+  heatId: number;
+  eventNumber: number | null;
+  eventTime: string | null;
+  eventTypeDescription: string;
+  sex: string;
+  age: string;
+  finalLevel: number;
+  finalLevelLabel: string;
+  heatNumber: number;
+  status: string;
+  completed: boolean;
+}
+
+export interface LanePromotion {
+  place: number;
+  lane: number;
+}
+
 // ─── API responses ────────────────────────────────────────────────────────────
 
 export interface ApiError {
@@ -211,80 +326,120 @@ export interface PaginatedResponse<T> {
   pageSize: number;
 }
 
-// ─── Competitors ──────────────────────────────────────────────────────────────
+// ─── Events & Heats ──────────────────────────────────────────────────────────
 
-export interface Competitor {
+export interface EventType {
   id: number;
   carnivalId: number;
-  givenName: string;
-  surname: string;
-  fullName: string;
-  sex: 'M' | 'F';
-  age: number;
-  dob: string | null;
-  houseId: number;
-  houseCode: string;
-  houseName: string;
+  description: string;
+  units: string;
+  unitsDisplay: string;
+  laneCount: number;
+  reportTypeId: number | null;
   include: boolean;
-  totalPoints: number;
-  externalId: string | null;
-  comments: string | null;
-  eventCount: number;
+  entrantCount: number;
+  placesAcrossAllHeats: boolean;
+  meetManagerEvent: string | null;
+  divisionCount: number;
+  heatCount: number;
 }
 
-export interface CompetitorEventEntry {
-  compEventId: number;
-  eventTypeDescription: string;
+export interface EventTypeDetail extends EventType {
+  divisions: EventDivision[];
+  finalLevels: FinalLevel[];
+}
+
+export interface EventDivision {
+  id: number;
+  eventTypeId: number;
+  sex: string;
+  age: string;
+  include: boolean;
+  record: string | null;
+  numericRecord: number | null;
+  recordName: string | null;
+  recordHouseId: number | null;
+  recordHouseCode: string | null;
+  heatCount: number;
+}
+
+export interface FinalLevel {
+  eventTypeId: number;
   finalLevel: number;
-  heat: number;
+  label: string;
+  numHeats: number;
+  pointScale: string | null;
+  promotionType: 'NONE' | 'Smooth' | 'Staggered';
+  useTimes: boolean;
+  promoteCount: number;
+  effectsRecords: boolean;
+}
+
+export interface Heat {
+  id: number;
+  eventId: number;
+  heatNumber: number;
+  finalLevel: number;
+  finalLevelLabel: string;
+  pointScale: string | null;
+  promotionType: string;
+  useTimes: boolean;
+  effectsRecords: boolean;
+  completed: boolean;
+  status: 'future' | 'active' | 'completed' | 'promoted';
+  eventNumber: number | null;
+  eventTime: string | null;
+  competitorCount: number;
+}
+
+export interface CompEvent {
+  id: number;
+  competitorId: number;
+  competitorFullName: string;
+  houseCode: string;
+  eventId: number;
+  heatId: number;
+  heatNumber: number;
+  finalLevel: number;
   lane: number | null;
-  place: number | null;
+  place: number;
   result: string | null;
+  numericResult: number;
   points: number;
   memo: string | null;
 }
 
-export interface CompetitorDetail extends Competitor {
-  events: CompetitorEventEntry[];
+export interface EventOrderItem {
+  heatId: number;
+  eventNumber: number | null;
+  eventTime: string | null;
+  eventTypeDescription: string;
+  sex: string;
+  age: string;
+  finalLevel: number;
+  finalLevelLabel: string;
+  heatNumber: number;
+  status: string;
+  completed: boolean;
 }
 
-export interface CompetitorListResponse {
-  data: Competitor[];
-  pagination: {
-    page: number;
-    perPage: number;
-    total: number;
-  };
+export interface GenerateHeatsResponse {
+  heatsCreated: number;
+  eventsProcessed: number;
+  existingHeatsCleared: boolean;
 }
 
-export interface ImportPreviewRow {
-  rowNumber: number;
-  status: 'valid' | 'warning' | 'skip' | 'error';
-  data: {
-    givenName?: string;
-    surname?: string;
-    sex?: string;
-    age?: number;
-    dob?: string;
-    houseCode?: string;
-    externalId?: string;
-  };
-  message: string | null;
+export interface PromoteResponse {
+  promotedCount: number;
+  fromLevel: number;
+  fromLevelLabel: string;
+  toLevel: number;
+  toLevelLabel: string;
+  heatsPromoted: Array<{ heatNumber: number; competitorsPromoted: string[] }>;
 }
 
-export interface ImportPreviewResponse {
-  totalRows: number;
-  valid: number;
-  warnings: number;
-  skipped: number;
-  errors: number;
-  previewToken: string;
-  rows: ImportPreviewRow[];
-}
-
-export interface ImportCommitResponse {
-  imported: number;
-  housesCreated: number;
-  skippedDuplicates: number;
-  errors: number;
+export interface AutoEnterResponse {
+  eventsProcessed: number;
+  competitorsEntered: number;
+  breakdown: Array<{ event: string; competitorsAdded: number; heatsUsed: number }>;
 }

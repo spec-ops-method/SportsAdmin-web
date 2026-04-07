@@ -30,14 +30,15 @@ export function normalizeSex(raw: string): 'M' | 'F' | null {
 }
 
 /**
- * Recalculate and persist a competitor's total points.
- * Phase 3 stub — sets total_points = 0 until comp_events exists (Phase 5).
+ * Recalculate and persist a competitor's total points from comp_events.
  */
 export async function recalcTotalPoints(competitorId: number): Promise<void> {
-  // NOTE: In Phase 5, replace with real SUM query against comp_events
-  await (prisma as any).competitor.update({
+  const agg = await prisma.$queryRaw<[{ total: number }]>`
+    SELECT COALESCE(SUM(points), 0) as total FROM comp_events WHERE competitor_id = ${competitorId}
+  `;
+  await prisma.competitor.update({
     where: { id: competitorId },
-    data: { totalPoints: 0 },
+    data: { totalPoints: agg[0].total },
   });
 }
 

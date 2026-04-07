@@ -32,14 +32,19 @@ const carnivalWithSummary = async (id: number) => {
       prisma.$queryRaw<[{ count: bigint }]>`
         SELECT COUNT(*) as count FROM competitors WHERE carnival_id = ${id}`,
       prisma.$queryRaw<[{ count: bigint }]>`
-        SELECT COUNT(*) as count FROM events WHERE carnival_id = ${id}`,
+        SELECT COUNT(*) as count FROM events e
+        JOIN event_types et ON e.event_type_id = et.id
+        WHERE et.carnival_id = ${id}`,
       prisma.house.count({ where: { carnivalId: id } }),
       prisma.$queryRaw<[{ count: bigint }]>`
         SELECT COUNT(*) as count FROM event_types WHERE carnival_id = ${id}`,
       prisma.$queryRaw<[{ total: bigint; completed: bigint }]>`
         SELECT COUNT(*) as total,
-               SUM(CASE WHEN status >= 2 THEN 1 ELSE 0 END) as completed
-        FROM heats WHERE carnival_id = ${id}`,
+               SUM(CASE WHEN h.completed = true THEN 1 ELSE 0 END) as completed
+        FROM heats h
+        JOIN events e ON h.event_id = e.id
+        JOIN event_types et ON e.event_type_id = et.id
+        WHERE et.carnival_id = ${id}`,
     ]);
 
   if (!carnival) return null;
