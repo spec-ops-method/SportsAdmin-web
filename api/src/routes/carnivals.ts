@@ -378,10 +378,10 @@ router.post(
           });
         }
 
-        return tx.carnival.findUnique({ where: { id: nc.id } });
+        return tx.carnival.findUnique({ where: { id: nc.id }, include: { settings: true } });
       });
 
-      res.status(201).json({ id: newCarnival!.id, name: newCarnival!.name });
+      res.status(201).json(newCarnival);
     } catch (err) {
       next(err);
     }
@@ -586,12 +586,13 @@ router.post(
           houseIdMap.set(oldId, nh.id);
         }
 
-        // House points extra
+        // House points extra — from $queryRaw, snake_case
         for (const hpe of (bundle.housePointsExtra ?? [])) {
-          const { id: _id, houseId: oldHouseId, ...hpeData } = hpe;
-          const newHouseId = houseIdMap.get(oldHouseId);
+          const newHouseId = houseIdMap.get(Number(hpe.house_id));
           if (newHouseId) {
-            await tx.housePointsExtra.create({ data: { ...hpeData, houseId: newHouseId } });
+            await tx.housePointsExtra.create({
+              data: { houseId: newHouseId, points: Number(hpe.points), reason: hpe.reason ?? null },
+            });
           }
         }
 
@@ -613,12 +614,22 @@ router.post(
           eventTypeIdMap.set(oldId, net.id);
         }
 
-        // Final levels
+        // Final levels — from $queryRaw, snake_case
         for (const fl of (bundle.finalLevels ?? [])) {
-          const { event_type_id: oldEtId, ...flData } = fl;
-          const newEtId = eventTypeIdMap.get(Number(oldEtId));
+          const newEtId = eventTypeIdMap.get(Number(fl.event_type_id));
           if (newEtId) {
-            await tx.finalLevel.create({ data: { ...flData, eventTypeId: newEtId } });
+            await tx.finalLevel.create({
+              data: {
+                eventTypeId: newEtId,
+                finalLevel: Number(fl.final_level),
+                numHeats: Number(fl.num_heats ?? 1),
+                pointScale: fl.point_scale ?? null,
+                promotionType: fl.promotion_type ?? 'NONE',
+                useTimes: fl.use_times ?? true,
+                promoteCount: Number(fl.promote_count ?? 0),
+                effectsRecords: fl.effects_records ?? true,
+              },
+            });
           }
         }
 
@@ -640,36 +651,43 @@ router.post(
           }
         }
 
-        // Events
+        // Events — from $queryRaw, snake_case; clear record fields
         const eventIdMap = new Map<number, number>();
         for (const ev of (bundle.events ?? [])) {
-          const { id: oldId, event_type_id: oldEtId, record_house_id: _rh, createdAt: _ca, updatedAt: _ua, ...evData } = ev;
-          const newEtId = eventTypeIdMap.get(Number(oldEtId));
+          const newEtId = eventTypeIdMap.get(Number(ev.event_type_id));
           if (newEtId) {
             const nev = await tx.event.create({
               data: {
-                ...evData,
                 eventTypeId: newEtId,
+                sex: ev.sex,
+                age: ev.age,
+                include: ev.include ?? true,
                 record: null,
                 numericRecord: null,
                 recordName: null,
                 recordHouseId: null,
               },
             });
-            eventIdMap.set(Number(oldId), nev.id);
+            eventIdMap.set(Number(ev.id), nev.id);
           }
         }
 
-        // Heats
+        // Heats — from $queryRaw, snake_case; clear event number/time, reset status
         for (const heat of (bundle.heats ?? [])) {
-          const { id: _id, event_id: oldEventId, createdAt: _ca, updatedAt: _ua, ...heatData } = heat;
-          const newEventId = eventIdMap.get(Number(oldEventId));
+          const newEventId = eventIdMap.get(Number(heat.event_id));
           if (newEventId) {
-            const isFirstLevel = Number(heat.final_level ?? heat.finalLevel) === 1;
+            const isFirstLevel = Number(heat.final_level) === 1;
             await tx.heat.create({
               data: {
-                ...heatData,
                 eventId: newEventId,
+                heatNumber: Number(heat.heat_number),
+                finalLevel: Number(heat.final_level),
+                pointScale: heat.point_scale ?? null,
+                promotionType: heat.promotion_type ?? 'NONE',
+                useTimes: heat.use_times ?? true,
+                effectsRecords: heat.effects_records ?? true,
+                dontOverridePlaces: heat.dont_override_places ?? false,
+                allNames: heat.all_names ?? false,
                 eventNumber: null,
                 eventTime: null,
                 completed: false,
@@ -679,23 +697,32 @@ router.post(
           }
         }
 
-        // Lanes
+        // Lanes — from Prisma ORM, camelCase
         for (const lane of (bundle.lanes ?? [])) {
-          const { carnival_id: _c, house_id: oldHouseId, lane_number: laneNumber } = lane;
+          // Support both camelCase (Prisma ORM) and snake_case (raw) formats
+          const laneNumber = lane.laneNumber ?? lane.lane_number;
+          const oldHouseId = lane.houseId ?? lane.house_id;
           const newHouseId = oldHouseId ? houseIdMap.get(Number(oldHouseId)) ?? null : null;
           await tx.lane.create({ data: { carnivalId: nc.id, laneNumber: Number(laneNumber), houseId: newHouseId } });
         }
 
-        // Competitor event ages
+        // Competitor event ages — from Prisma ORM, camelCase
         for (const cea of (bundle.competitorEventAges ?? [])) {
-          const { carnival_id: _c, ...ceaData } = cea;
+          // carnivalId may be stored as carnival_id (camelCase from ORM → carnivalId)
+          const { carnivalId: _c, carnival_id: _c2, ...ceaData } = cea;
           await tx.competitorEventAge.create({ data: { ...ceaData, carnivalId: nc.id } });
         }
 
-        // Competitors
+        // Competitors — from Prisma ORM, camelCase; houseId in bundle is camelCase
         const competitorIdMap = new Map<number, number>();
         for (const comp of (bundle.competitors ?? [])) {
-          const { id: oldId, carnivalId: _c, house_id: oldHouseId, createdAt: _ca, updatedAt: _ua, ...compData } = comp;
+          const {
+            id: oldId, carnivalId: _c, carnival_id: _c2,
+            houseId: oldHouseIdCamel, house_id: oldHouseIdSnake,
+            createdAt: _ca, updatedAt: _ua,
+            ...compData
+          } = comp;
+          const oldHouseId = oldHouseIdCamel ?? oldHouseIdSnake;
           const newHouseId = oldHouseId ? houseIdMap.get(Number(oldHouseId)) : undefined;
           if (newHouseId !== undefined) {
             const nc2 = await tx.competitor.create({
@@ -705,35 +732,54 @@ router.post(
           }
         }
 
-        // CompEvents
+        // CompEvents — from $queryRaw, snake_case
         for (const ce of (bundle.compEvents ?? [])) {
-          const { id: _id, competitor_id: oldCompId, event_id: oldEventId, heat_id: _heatId, createdAt: _ca, updatedAt: _ua, ...ceData } = ce;
-          // Skip comp events if competitor or event wasn't imported
-          const newCompId = competitorIdMap.get(Number(oldCompId));
-          const newEventId = eventIdMap.get(Number(oldEventId));
+          const newCompId = competitorIdMap.get(Number(ce.competitor_id));
+          const newEventId = eventIdMap.get(Number(ce.event_id));
           if (newCompId && newEventId) {
-            // Find the new heat based on the new event
             const heat = await tx.heat.findFirst({
               where: {
                 eventId: newEventId,
-                heatNumber: Number(ce.heat_number ?? ce.heatNumber),
-                finalLevel: Number(ce.final_level ?? ce.finalLevel),
+                heatNumber: Number(ce.heat_number),
+                finalLevel: Number(ce.final_level),
               },
             });
             if (heat) {
               await tx.compEvent.create({
-                data: { ...ceData, competitorId: newCompId, eventId: newEventId, heatId: heat.id },
+                data: {
+                  competitorId: newCompId,
+                  eventId: newEventId,
+                  heatId: heat.id,
+                  heatNumber: Number(ce.heat_number),
+                  finalLevel: Number(ce.final_level),
+                  lane: ce.lane != null ? Number(ce.lane) : null,
+                  place: Number(ce.place ?? 0),
+                  result: ce.result ?? null,
+                  numericResult: Number(ce.numeric_result ?? 0),
+                  points: Number(ce.points ?? 0),
+                  memo: ce.memo ?? null,
+                },
               });
             }
           }
         }
 
-        // Records
+        // Records — from $queryRaw, snake_case
         for (const rec of (bundle.records ?? [])) {
-          const { id: _id, event_id: oldEventId, createdAt: _ca, ...recData } = rec;
-          const newEventId = eventIdMap.get(Number(oldEventId));
+          const newEventId = eventIdMap.get(Number(rec.event_id));
           if (newEventId) {
-            await tx.record.create({ data: { ...recData, eventId: newEventId } });
+            await tx.record.create({
+              data: {
+                eventId: newEventId,
+                surname: rec.surname,
+                givenName: rec.given_name,
+                houseCode: rec.house_code ?? null,
+                date: new Date(rec.date),
+                result: rec.result,
+                numericResult: Number(rec.numeric_result),
+                comments: rec.comments ?? null,
+              },
+            });
           }
         }
 
