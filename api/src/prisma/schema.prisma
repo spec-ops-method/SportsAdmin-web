@@ -51,9 +51,11 @@ model Carnival {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
-  settings    CarnivalSettings?
-  houses      House[]
-  users       UserCarnival[]
+  settings            CarnivalSettings?
+  houses              House[]
+  users               UserCarnival[]
+  competitors         Competitor[]
+  competitorEventAges CompetitorEventAge[]
 
   @@map("carnivals")
 }
@@ -73,6 +75,8 @@ model CarnivalSettings {
   htmlExportEnabled Boolean @default(false) @map("html_export_enabled")
   htmlReportHeader String? @map("html_report_header") @db.VarChar(50)
   publicAccess     Boolean @default(false) @map("public_access")
+  ageCutoffMonth   Int     @default(1) @map("age_cutoff_month")
+  ageCutoffDay     Int     @default(1) @map("age_cutoff_day")
 
   carnival Carnival @relation(fields: [carnivalId], references: [id], onDelete: Cascade)
 
@@ -96,6 +100,7 @@ model House {
   carnival        Carnival         @relation(fields: [carnivalId], references: [id], onDelete: Cascade)
   houseType       HouseType?       @relation(fields: [houseTypeId], references: [id])
   pointsExtra     HousePointsExtra[]
+  competitors     Competitor[]
 
   @@unique([carnivalId, code])
   @@map("houses")
@@ -136,4 +141,43 @@ model FinalLevelLabel {
   label String
 
   @@map("final_level_labels")
+}
+
+// ─── Competitors ──────────────────────────────────────────────────────────────
+
+model Competitor {
+  id          Int       @id @default(autoincrement())
+  carnivalId  Int       @map("carnival_id")
+  givenName   String    @map("given_name") @db.VarChar(30)
+  surname     String    @db.VarChar(30)
+  sex         String    @db.Char(1)
+  age         Int
+  dob         DateTime? @db.Date
+  houseId     Int       @map("house_id")
+  houseCode   String    @map("house_code") @db.VarChar(10)
+  include     Boolean   @default(true)
+  totalPoints Float     @map("total_points") @default(0)
+  externalId  String?   @map("external_id") @db.VarChar(50)
+  comments    String?   @db.VarChar(100)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  carnival    Carnival  @relation(fields: [carnivalId], references: [id], onDelete: Cascade)
+  house       House     @relation(fields: [houseId], references: [id], onDelete: Restrict)
+
+  @@map("competitors")
+}
+
+model CompetitorEventAge {
+  carnivalId     Int     @map("carnival_id")
+  competitorAge  Int     @map("competitor_age")
+  eventAge       String  @map("event_age") @db.VarChar(20)
+  flag           Boolean @default(true)
+  tag            Boolean @default(false)
+  meetManagerDiv String? @map("meet_manager_division") @db.VarChar(2)
+
+  carnival       Carnival @relation(fields: [carnivalId], references: [id], onDelete: Cascade)
+
+  @@id([carnivalId, competitorAge, eventAge])
+  @@map("competitor_event_age")
 }

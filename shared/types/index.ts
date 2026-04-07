@@ -62,6 +62,8 @@ export interface CarnivalSettings {
   htmlExportEnabled: boolean;
   htmlReportHeader: string | null;
   publicAccess: boolean;
+  ageCutoffMonth: number;
+  ageCutoffDay: number;
 }
 
 // ─── Houses ───────────────────────────────────────────────────────────────────
@@ -105,6 +107,93 @@ export interface HouseType {
   name: string;
 }
 
+// ─── Competitors ──────────────────────────────────────────────────────────────
+
+export interface Competitor {
+  id: number;
+  carnivalId: number;
+  givenName: string;
+  surname: string;
+  fullName: string;
+  sex: 'M' | 'F';
+  age: number;
+  dob: string | null;
+  houseId: number;
+  houseCode: string;
+  houseName: string;
+  include: boolean;
+  totalPoints: number;
+  externalId: string | null;
+  comments: string | null;
+  eventCount: number;
+}
+
+export interface CompetitorDetail extends Competitor {
+  events: CompetitorEventEntry[];
+}
+
+export interface CompetitorEventEntry {
+  compEventId: number;
+  eventTypeDescription: string;
+  finalLevel: number;
+  heat: number;
+  lane: number | null;
+  place: number | null;
+  result: string | null;
+  points: number;
+  memo: string | null;
+}
+
+export interface CompetitorEventAge {
+  carnivalId: number;
+  competitorAge: number;
+  eventAge: string;
+  flag: boolean;
+  tag: boolean;
+  meetManagerDiv: string | null;
+}
+
+export interface CompetitorListResponse {
+  data: Competitor[];
+  pagination: {
+    page: number;
+    perPage: number;
+    total: number;
+  };
+}
+
+export interface ImportPreviewRow {
+  rowNumber: number;
+  status: 'valid' | 'warning' | 'skip' | 'error';
+  data: {
+    givenName?: string;
+    surname?: string;
+    sex?: string;
+    age?: number;
+    dob?: string;
+    houseCode?: string;
+    externalId?: string;
+  };
+  message: string | null;
+}
+
+export interface ImportPreviewResponse {
+  totalRows: number;
+  valid: number;
+  warnings: number;
+  skipped: number;
+  errors: number;
+  previewToken: string;
+  rows: ImportPreviewRow[];
+}
+
+export interface ImportCommitResponse {
+  imported: number;
+  housesCreated: number;
+  skippedDuplicates: number;
+  errors: number;
+}
+
 // ─── API responses ────────────────────────────────────────────────────────────
 
 export interface ApiError {
@@ -120,4 +209,82 @@ export interface PaginatedResponse<T> {
   total: number;
   page: number;
   pageSize: number;
+}
+
+// ─── Competitors ──────────────────────────────────────────────────────────────
+
+export interface Competitor {
+  id: number;
+  carnivalId: number;
+  givenName: string;
+  surname: string;
+  fullName: string;
+  sex: 'M' | 'F';
+  age: number;
+  dob: string | null;
+  houseId: number;
+  houseCode: string;
+  houseName: string;
+  include: boolean;
+  totalPoints: number;
+  externalId: string | null;
+  comments: string | null;
+  eventCount: number;
+}
+
+export interface CompetitorEventEntry {
+  compEventId: number;
+  eventTypeDescription: string;
+  finalLevel: number;
+  heat: number;
+  lane: number | null;
+  place: number | null;
+  result: string | null;
+  points: number;
+  memo: string | null;
+}
+
+export interface CompetitorDetail extends Competitor {
+  events: CompetitorEventEntry[];
+}
+
+export interface CompetitorListResponse {
+  data: Competitor[];
+  pagination: {
+    page: number;
+    perPage: number;
+    total: number;
+  };
+}
+
+export interface ImportPreviewRow {
+  rowNumber: number;
+  status: 'valid' | 'warning' | 'skip' | 'error';
+  data: {
+    givenName?: string;
+    surname?: string;
+    sex?: string;
+    age?: number;
+    dob?: string;
+    houseCode?: string;
+    externalId?: string;
+  };
+  message: string | null;
+}
+
+export interface ImportPreviewResponse {
+  totalRows: number;
+  valid: number;
+  warnings: number;
+  skipped: number;
+  errors: number;
+  previewToken: string;
+  rows: ImportPreviewRow[];
+}
+
+export interface ImportCommitResponse {
+  imported: number;
+  housesCreated: number;
+  skippedDuplicates: number;
+  errors: number;
 }

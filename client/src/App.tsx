@@ -8,6 +8,8 @@ import DashboardPage from './pages/DashboardPage';
 import Carnivals from './pages/Carnivals';
 import Houses from './pages/Houses';
 import CarnivalSettings from './pages/CarnivalSettings';
+import Competitors from './pages/Competitors';
+import CompetitorEventAgeConfig from './pages/CompetitorEventAgeConfig';
 
 export default function App() {
   const { user, loading } = useAuth();
@@ -37,6 +39,8 @@ export default function App() {
                   <Route path="/carnivals" element={<Carnivals />} />
                   <Route path="/carnivals/:id/settings" element={<CarnivalSettings />} />
                   <Route path="/houses" element={<Houses />} />
+                  <Route path="/competitors" element={<Competitors />} />
+                  <Route path="/carnivals/:id/age-mapping" element={<CompetitorEventAgeConfig />} />
                 </Routes>
               </AppShell>
             </ProtectedRoute>

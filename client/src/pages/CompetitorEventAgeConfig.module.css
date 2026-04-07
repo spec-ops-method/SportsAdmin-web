@@ -1,0 +1,81 @@
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+.header h1 { margin: 0; font-size: 1.5rem; }
+
+.headerActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.table th {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  background: #f8f9fa;
+  border-bottom: 2px solid #e2e8f0;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+}
+
+.table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: middle;
+}
+
+.numInput {
+  width: 80px;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+.numInput:focus { outline: 2px solid #2563eb; border-color: transparent; }
+
+.status, .empty {
+  color: #666;
+  font-style: italic;
+}
+
+.errorMsg { color: #c0392b; }
+
+.btnPrimary {
+  padding: 0.5rem 1rem;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.btnPrimary:hover { background: #1d4ed8; }
+.btnPrimary:disabled { opacity: 0.6; cursor: default; }
+
+.btnSecondary {
+  padding: 0.5rem 1rem;
+  background: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.btnSecondary:hover { background: #f3f4f6; }
