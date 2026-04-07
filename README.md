@@ -10,7 +10,7 @@ A modern web application rebuild of [Sports Administrator](https://github.com/ru
     <td align="center"><img src="artifacts/dashboard.png" width="640" alt="Dashboard" /><br/><sub>Dashboard</sub></td>
   </tr>
 </table>
-
+1
 ## Background
 
 Sports Administrator was originally developed around 2000 by Andrew Rogers for Christian Outreach College, Brisbane (now known as [Citipointe Christian College](https://citipointe.qld.edu.au/)). It was commercially distributed as a Microsoft Access 97 application before being open-sourced and migrated to Access 2010+ by James Rudd in 2017. The application manages the complete lifecycle of a school sports carnival — event setup, competitor registration, results entry, automatic place and points calculation, promotion through heats to finals, record tracking, and reporting.
@@ -20,24 +20,24 @@ The goal of this project is to rebuild Sports Administrator as a modern web appl
 ## Repository Structure
 
 ```
-├── api/           # Express + TypeScript backend
+├── api/                    # Express + TypeScript backend
 │   ├── src/
-│   │   ├── prisma/    # Schema, migrations, seed
-│   │   ├── routes/    # Express route handlers
-│   │   ├── services/  # Business logic (result parsing, scoring)
+│   │   ├── prisma/         # Schema, migrations, seed
+│   │   ├── routes/         # Express route handlers
+│   │   ├── services/       # Business logic (result parsing, scoring)
 │   │   └── middleware/
 │   └── tests/
-├── client/        # React + Vite frontend
+├── client/                 # React + Vite frontend
 │   ├── src/
-│   │   ├── pages/     # One file per page/feature
+│   │   ├── pages/          # One file per page/feature
 │   │   ├── components/
 │   │   ├── context/
 │   │   └── hooks/
 │   └── tests/
-├── shared/        # Shared TypeScript interfaces (used by both api and client)
-├── spec/          # Authoritative software specification (13 documents)
-├── plan/          # Implementation plan and development history
-├── legacy/        # Original Access application (git submodule)
+├── shared/                 # Shared TypeScript interfaces (used by both api and client)
+├── spec/                   # Authoritative software specification (13 documents)
+├── plan/                   # Implementation plan and development history
+├── legacy/                 # Original Access application (git submodule)
 └── docker-compose.yml
 ```
 
