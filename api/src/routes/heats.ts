@@ -61,12 +61,27 @@ router.get(
 
       const heat = await verifyHeatInCarnival(heatId, carnivalId);
 
+      // Build orderBy from ?sort query param
+      const sort = req.query.sort as string | undefined;
+      let orderBy: any[];
+      if (sort === 'lane') {
+        orderBy = [{ lane: 'asc' }];
+      } else if (sort === 'name') {
+        orderBy = [{ competitor: { surname: 'asc' } }, { competitor: { givenName: 'asc' } }];
+      } else if (sort === 'place') {
+        orderBy = [{ place: 'asc' }];
+      } else if (sort === 'unsorted') {
+        orderBy = [{ id: 'asc' }];
+      } else {
+        orderBy = [{ lane: 'asc' }, { competitorId: 'asc' }];
+      }
+
       const compEvents = await (prisma as any).compEvent.findMany({
         where: { heatId },
         include: {
           competitor: { include: { house: { select: { code: true } } } },
         },
-        orderBy: [{ lane: 'asc' }, { competitorId: 'asc' }],
+        orderBy,
       });
 
       const formatted = formatHeat(heat);

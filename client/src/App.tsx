@@ -14,6 +14,8 @@ import EventTypes from './pages/EventTypes';
 import EventTypeDetail from './pages/EventTypeDetail';
 import HeatDetail from './pages/HeatDetail';
 import EventOrder from './pages/EventOrder';
+import PointScales from './pages/PointScales';
+import EventRecords from './pages/EventRecords';
 
 export default function App() {
   const { user, loading } = useAuth();
@@ -49,6 +51,8 @@ export default function App() {
                   <Route path="/event-types/:id" element={<EventTypeDetail />} />
                   <Route path="/heats/:id" element={<HeatDetail />} />
                   <Route path="/event-order" element={<EventOrder />} />
+                  <Route path="/point-scales" element={<PointScales />} />
+                  <Route path="/events/:id/records" element={<EventRecords />} />
                 </Routes>
               </AppShell>
             </ProtectedRoute>

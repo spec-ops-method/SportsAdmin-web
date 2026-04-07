@@ -271,6 +271,7 @@ export interface HeatDetailResponse {
   units: string;
   laneCount: number;
   carnivalId: number;
+  dontOverridePlaces?: boolean;
 }
 
 export interface CompEvent {
@@ -442,4 +443,50 @@ export interface AutoEnterResponse {
   eventsProcessed: number;
   competitorsEntered: number;
   breakdown: Array<{ event: string; competitorsAdded: number; heatsUsed: number }>;
+}
+
+// ─── Phase 5: Scoring ────────────────────────────────────────────────────────
+
+export interface PointScaleEntry {
+  place: number;
+  points: number;
+}
+
+export interface PointScale {
+  carnivalId: number;
+  name: string;
+  entries: PointScaleEntry[];
+  usedByHeatCount: number;
+}
+
+export interface EventRecord {
+  id: number;
+  eventId: number;
+  surname: string;
+  givenName: string;
+  houseCode: string | null;
+  date: string;
+  result: string;
+  numericResult: number;
+  comments: string | null;
+  isCurrent?: boolean;
+}
+
+export interface RecordBreaker {
+  competitorId: number;
+  fullName: string;
+  numericResult: number;
+  formattedResult: string;
+  eventId: number;
+  houseCode: string;
+}
+
+export interface HeatCompleteResponse {
+  heatCompleted: boolean;
+  recordBreakers: RecordBreaker[];
+}
+
+export interface BulkRecalcResponse {
+  compEventsUpdated: number;
+  competitorsUpdated: number;
 }

@@ -58,6 +58,7 @@ model Carnival {
   competitorEventAges CompetitorEventAge[]
   eventTypes          EventType[]
   lanes               Lane[]
+  pointScales         PointScale[]
 
   @@map("carnivals")
 }
@@ -230,6 +231,7 @@ model Event {
   recordHouse House?    @relation("EventRecordHouse", fields: [recordHouseId], references: [id], onDelete: SetNull)
   heats       Heat[]
   compEvents  CompEvent[]
+  records     Record[]
 
   @@unique([eventTypeId, sex, age])
   @@map("events")
@@ -330,4 +332,43 @@ model LanePromotionAllocation {
 
   @@id([eventTypeId, place])
   @@map("lane_promotion_allocations")
+}
+
+model PointScale {
+  carnivalId Int    @map("carnival_id")
+  name       String @db.VarChar(10)
+  carnival   Carnival @relation(fields: [carnivalId], references: [id], onDelete: Cascade)
+  entries    PointScaleEntry[]
+
+  @@id([carnivalId, name])
+  @@map("point_scales")
+}
+
+model PointScaleEntry {
+  carnivalId Int    @map("carnival_id")
+  scaleName  String @map("scale_name") @db.VarChar(10)
+  place      Int
+  points     Float  @default(0)
+
+  pointScale PointScale @relation(fields: [carnivalId, scaleName], references: [carnivalId, name], onDelete: Cascade)
+
+  @@id([carnivalId, scaleName, place])
+  @@map("point_scale_entries")
+}
+
+model Record {
+  id            Int      @id @default(autoincrement())
+  eventId       Int      @map("event_id")
+  surname       String   @db.VarChar(30)
+  givenName     String   @map("given_name") @db.VarChar(30)
+  houseCode     String?  @map("house_code") @db.VarChar(10)
+  date          DateTime @db.Date
+  result        String   @db.VarChar(20)
+  numericResult Float    @map("numeric_result")
+  comments      String?  @db.VarChar(100)
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("records")
 }
