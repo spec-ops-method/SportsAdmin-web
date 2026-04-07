@@ -18,6 +18,11 @@ function formatCentiseconds(totalSeconds: number): string {
 
 function formatSeconds(totalSeconds: number, unit: string): string {
   if (unit === 'Seconds') {
+    if (totalSeconds >= 3600) {
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor(totalSeconds / 60) % 60;
+      return `${hours}:${pad2(minutes)}:${formatCentiseconds(totalSeconds)}`;
+    }
     if (totalSeconds >= 60) {
       const minutes = Math.floor(totalSeconds / 60);
       return `${minutes}:${formatCentiseconds(totalSeconds)}`;

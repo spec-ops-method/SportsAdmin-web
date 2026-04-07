@@ -89,7 +89,7 @@ router.get(
           COALESCE(SUM(ce.points), 0) + COALESCE(ep.extra_points, 0) AS grand_total,
           ROUND(
             (COALESCE(SUM(ce.points), 0) + COALESCE(ep.extra_points, 0))::numeric
-            / NULLIF(SUM(SUM(ce.points)) OVER (), 0) * 100,
+            / NULLIF(SUM(SUM(ce.points)) OVER (), 0)::numeric * 100,
             1
           )                                               AS percentage
         FROM houses h
@@ -344,7 +344,7 @@ router.get(
             COALESCE(SUM(ce.points), 0) + COALESCE(ep.extra_points, 0) AS grand_total,
             ROUND(
               (COALESCE(SUM(ce.points), 0) + COALESCE(ep.extra_points, 0))::numeric
-              / NULLIF(SUM(SUM(ce.points)) OVER (), 0) * 100, 1
+              / NULLIF(SUM(SUM(ce.points)) OVER (), 0)::numeric * 100, 1
             ) AS percentage
           FROM houses h
           LEFT JOIN competitors c ON c.house_code = h.code AND c.carnival_id = ${carnivalId}

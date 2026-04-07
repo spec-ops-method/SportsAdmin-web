@@ -33,7 +33,7 @@ beforeAll(async () => {
   const competitorRes = await request(app)
     .post(`/carnivals/${carnivalId}/competitors`)
     .set('Authorization', `Bearer ${coordinatorToken}`)
-    .send({ givenName: 'Alice', surname: 'Smith', sex: 'F', age: 12, houseCode: 'RED' });
+    .send({ givenName: 'Alice', surname: 'Smith', sex: 'F', age: 12, houseId });
   competitorId = competitorRes.body.id;
 });
 

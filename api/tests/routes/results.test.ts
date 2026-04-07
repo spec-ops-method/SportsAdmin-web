@@ -37,7 +37,7 @@ beforeAll(async () => {
   const compRes = await request(app)
     .post(`/carnivals/${carnivalId}/competitors`)
     .set('Authorization', `Bearer ${coordinatorToken}`)
-    .send({ givenName: 'Bob', surname: 'Jones', sex: 'M', age: 14, houseCode: 'BLU' });
+    .send({ givenName: 'Bob', surname: 'Jones', sex: 'M', age: 14, houseId });
   competitorId = compRes.body.id;
 
   // Create event type (Seconds = ASC)
