@@ -29,7 +29,8 @@ model UserCarnival {
   userId     Int @map("user_id")
   carnivalId Int @map("carnival_id")
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  carnival Carnival @relation(fields: [carnivalId], references: [id], onDelete: Cascade)
 
   @@unique([userId, carnivalId])
   @@map("user_carnivals")
@@ -40,6 +41,75 @@ enum UserRole {
   coordinator
   operator
   viewer
+}
+
+// ─── Carnivals ────────────────────────────────────────────────────────────────
+
+model Carnival {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  settings    CarnivalSettings?
+  houses      House[]
+  users       UserCarnival[]
+
+  @@map("carnivals")
+}
+
+model CarnivalSettings {
+  carnivalId       Int     @id @map("carnival_id")
+  title            String  @db.VarChar(100)
+  footer           String? @db.VarChar(100)
+  openAge          Int     @default(99) @map("open_age")
+  houseTypeId      Int?    @map("house_type_id")
+  alertToRecord    Boolean @default(true) @map("alert_to_record")
+  reportHead1      String  @default("Lane") @map("report_head_1") @db.VarChar(50)
+  reportHead2      String  @default("Time") @map("report_head_2") @db.VarChar(50)
+  meetManagerTeam  String? @map("meet_manager_team") @db.VarChar(30)
+  meetManagerCode  String? @map("meet_manager_code") @db.VarChar(4)
+  meetManagerTop   Int     @default(3) @map("meet_manager_top")
+  htmlExportEnabled Boolean @default(false) @map("html_export_enabled")
+  htmlReportHeader String? @map("html_report_header") @db.VarChar(50)
+  publicAccess     Boolean @default(false) @map("public_access")
+
+  carnival Carnival @relation(fields: [carnivalId], references: [id], onDelete: Cascade)
+
+  @@map("carnival_settings")
+}
+
+// ─── Houses ───────────────────────────────────────────────────────────────────
+
+model House {
+  id              Int     @id @default(autoincrement())
+  carnivalId      Int     @map("carnival_id")
+  code            String  @db.VarChar(7)
+  name            String  @db.VarChar(50)
+  houseTypeId     Int?    @map("house_type_id")
+  include         Boolean @default(true)
+  details         String?
+  lane            Int?
+  competitionPool Int?    @map("competition_pool")
+  flag            Boolean @default(false)
+
+  carnival        Carnival         @relation(fields: [carnivalId], references: [id], onDelete: Cascade)
+  houseType       HouseType?       @relation(fields: [houseTypeId], references: [id])
+  pointsExtra     HousePointsExtra[]
+
+  @@unique([carnivalId, code])
+  @@map("houses")
+}
+
+model HousePointsExtra {
+  id      Int     @id @default(autoincrement())
+  houseId Int     @map("house_id")
+  points  Float
+  reason  String?
+
+  house House @relation(fields: [houseId], references: [id], onDelete: Cascade)
+
+  @@map("house_points_extra")
 }
 
 // ─── Reference / Seed tables ──────────────────────────────────────────────────
@@ -54,8 +124,9 @@ model Unit {
 }
 
 model HouseType {
-  id   Int    @id @default(autoincrement())
-  name String @unique
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
+  houses House[]
 
   @@map("house_types")
 }

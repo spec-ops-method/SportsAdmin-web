@@ -4,6 +4,8 @@ import cors from 'cors';
 import morgan from 'morgan';
 
 import authRouter from './routes/auth';
+import carnivalsRouter from './routes/carnivals';
+import housesRouter from './routes/houses';
 import { errorHandler } from './middleware/errors';
 import { generalLimiter } from './middleware/rateLimiter';
 
@@ -28,6 +30,8 @@ app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 // ─── Routes ───────────────────────────────────────────────────────────────────
 
 app.use('/auth', authRouter);
+app.use('/carnivals', carnivalsRouter);
+app.use('/carnivals/:carnivalId/houses', housesRouter);
 
 // ─── Error handling ───────────────────────────────────────────────────────────
 

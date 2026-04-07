@@ -1,10 +1,12 @@
 import { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useCarnival } from '../context/CarnivalContext';
 import styles from './AppShell.module.css';
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
+  const { activeCarnival } = useCarnival();
 
   return (
     <div className={styles.shell}>
@@ -13,7 +15,15 @@ export default function AppShell({ children }: { children: ReactNode }) {
           🏆 Sports Administrator
         </Link>
         <nav className={styles.nav}>
-          {/* Navigation links are added per phase */}
+          <Link to="/carnivals" className={styles.navLink}>Carnivals</Link>
+          {activeCarnival && (
+            <>
+              <span className={styles.navSep}>›</span>
+              <span className={styles.activeName}>{activeCarnival.name}</span>
+              <Link to="/houses" className={styles.navLink}>Houses</Link>
+              <Link to={`/carnivals/${activeCarnival.id}/settings`} className={styles.navLink}>Settings</Link>
+            </>
+          )}
         </nav>
         <div className={styles.userMenu}>
           <span className={styles.userName}>{user?.displayName}</span>
