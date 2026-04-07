@@ -1,6 +1,8 @@
 # ─── Build stage ──────────────────────────────────────────────────────────────
 FROM node:20-alpine AS build
 
+RUN apk add --no-cache openssl
+
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
@@ -22,6 +24,8 @@ RUN npm run build --workspace=shared
 
 # ─── Production stage ─────────────────────────────────────────────────────────
 FROM node:20-alpine AS production
+
+RUN apk add --no-cache openssl
 
 WORKDIR /app
 
