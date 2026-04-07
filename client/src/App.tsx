@@ -17,6 +17,8 @@ import EventOrder from './pages/EventOrder';
 import PointScales from './pages/PointScales';
 import EventRecords from './pages/EventRecords';
 import Reports from './pages/Reports';
+import MeetManager from './pages/MeetManager';
+import CarnivalDisk from './pages/CarnivalDisk';
 
 export default function App() {
   const { user, loading } = useAuth();
@@ -55,6 +57,8 @@ export default function App() {
                   <Route path="/point-scales" element={<PointScales />} />
                   <Route path="/events/:id/records" element={<EventRecords />} />
                   <Route path="/reports" element={<Reports />} />
+                  <Route path="/meet-manager" element={<MeetManager />} />
+                  <Route path="/carnival-disk" element={<CarnivalDisk />} />
                 </Routes>
               </AppShell>
             </ProtectedRoute>

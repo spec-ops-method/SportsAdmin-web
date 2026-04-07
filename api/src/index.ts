@@ -11,6 +11,8 @@ import eventTypesRouter from './routes/eventTypes';
 import heatsRouter from './routes/heats';
 import resultsRouter from './routes/results';
 import reportsRouter from './routes/reports';
+import meetManagerRouter from './routes/meetManager';
+import carnivalDiskRouter from './routes/carnivalDisk';
 import { authenticate } from './middleware/auth';
 import { errorHandler } from './middleware/errors';
 import { generalLimiter } from './middleware/rateLimiter';
@@ -43,6 +45,8 @@ app.use('/carnivals', authenticate, eventTypesRouter);
 app.use('/carnivals', authenticate, heatsRouter);
 app.use('/carnivals', authenticate, resultsRouter);
 app.use('/carnivals', authenticate, reportsRouter);
+app.use('/carnivals', authenticate, meetManagerRouter);
+app.use('/carnivals', authenticate, carnivalDiskRouter);
 
 // ─── Error handling ───────────────────────────────────────────────────────────
 

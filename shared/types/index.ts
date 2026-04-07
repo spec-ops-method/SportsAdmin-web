@@ -494,6 +494,42 @@ export interface BulkRecalcResponse {
   competitorsUpdated: number;
 }
 
+// ─── Phase 8: Meet Manager & Carnival Disk ────────────────────────────────────
+
+export interface MeetManagerDivision {
+  eventAge: string;
+  mdiv: string;
+}
+
+export interface DashboardStats {
+  competitorCount: number;
+  eventTypeCount: number;
+  eventCount: number;
+  completedHeatCount: number;
+  recordCount: number;
+}
+
+export interface DashboardRecentResult {
+  competitorName: string;
+  eventTypeName: string;
+  result: string;
+  place: number | null;
+  updatedAt: string;
+}
+
+export interface DashboardResponse {
+  carnival: Carnival & { settings: CarnivalSettings | null };
+  stats: DashboardStats;
+  recentResults: DashboardRecentResult[];
+}
+
+export interface CarnivalDiskImportResult {
+  housesProcessed: number;
+  competitorsUpdated: number;
+  competitorsCreated: number;
+  errors: string[];
+}
+
 // ─── Phase 7: Reporting ───────────────────────────────────────────────────────
 
 export interface HousePointsRow {

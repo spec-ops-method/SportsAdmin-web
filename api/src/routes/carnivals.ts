@@ -834,4 +834,72 @@ router.put(
   },
 );
 
+// ─── Dashboard ────────────────────────────────────────────────────────────────
+
+router.get(
+  '/:carnivalId/dashboard',
+  requireCarnivalAccess,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const carnivalId = req.carnivalId!;
+
+      const [carnival, competitorCount, eventTypeCount, eventCount, completedHeatCount, recordCount, recentResults] =
+        await Promise.all([
+          prisma.carnival.findUnique({
+            where: { id: carnivalId },
+            include: { settings: true },
+          }),
+          prisma.competitor.count({ where: { carnivalId, include: true } }),
+          prisma.eventType.count({ where: { carnivalId } }),
+          prisma.$queryRaw<[{ count: bigint }]>`
+            SELECT COUNT(*) as count FROM events e
+            JOIN event_types et ON e.event_type_id = et.id
+            WHERE et.carnival_id = ${carnivalId}`,
+          prisma.$queryRaw<[{ count: bigint }]>`
+            SELECT COUNT(*) as count FROM heats h
+            JOIN events e ON h.event_id = e.id
+            JOIN event_types et ON e.event_type_id = et.id
+            WHERE et.carnival_id = ${carnivalId} AND h.completed = true`,
+          prisma.record.count({
+            where: { event: { eventType: { carnivalId } } },
+          }),
+          prisma.compEvent.findMany({
+            where: {
+              result: { not: null },
+              competitor: { carnivalId },
+            },
+            include: {
+              competitor: { select: { givenName: true, surname: true } },
+              event: { include: { eventType: { select: { description: true } } } },
+            },
+            orderBy: { updatedAt: 'desc' },
+            take: 5,
+          }),
+        ]);
+
+      if (!carnival) throw new NotFoundError('Carnival', carnivalId);
+
+      res.json({
+        carnival,
+        stats: {
+          competitorCount,
+          eventTypeCount,
+          eventCount: Number(eventCount[0].count),
+          completedHeatCount: Number(completedHeatCount[0].count),
+          recordCount,
+        },
+        recentResults: recentResults.map((ce) => ({
+          competitorName: `${ce.competitor.givenName} ${ce.competitor.surname}`,
+          eventTypeName: ce.event.eventType.description,
+          result: ce.result ?? '',
+          place: ce.place || null,
+          updatedAt: ce.updatedAt.toISOString(),
+        })),
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
 export default router;
