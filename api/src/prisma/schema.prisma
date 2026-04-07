@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Users & Auth ─────────────────────────────────────────────────────────────
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  displayName  String   @map("display_name")
+  role         UserRole @default(viewer)
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  carnivals UserCarnival[]
+
+  @@map("users")
+}
+
+model UserCarnival {
+  id         Int @id @default(autoincrement())
+  userId     Int @map("user_id")
+  carnivalId Int @map("carnival_id")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, carnivalId])
+  @@map("user_carnivals")
+}
+
+enum UserRole {
+  admin
+  coordinator
+  operator
+  viewer
+}
+
+// ─── Reference / Seed tables ──────────────────────────────────────────────────
+
+model Unit {
+  id            Int     @id @default(autoincrement())
+  name          String  @unique
+  label         String
+  sortAscending Boolean @map("sort_ascending")
+
+  @@map("units")
+}
+
+model HouseType {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  @@map("house_types")
+}
+
+model FinalLevelLabel {
+  level Int    @id
+  label String
+
+  @@map("final_level_labels")
+}

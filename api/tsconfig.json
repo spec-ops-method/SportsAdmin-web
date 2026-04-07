@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "lib": ["ES2020"],
+    "outDir": "dist",
+    "rootDirs": ["src", "../shared/types"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "paths": {
+      "@sportsadmin/shared": ["../shared/types/index.ts"]
+    },
+    "baseUrl": "."
+  },
+  "include": ["src", "../shared/types"],
+  "exclude": ["node_modules", "dist", "tests"]
+}
+
+

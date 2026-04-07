@@ -1,0 +1,63 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: sportsadmin
+      POSTGRES_PASSWORD: sportsadmin
+      POSTGRES_DB: sportsadmin
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sportsadmin"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+      target: build
+    working_dir: /app/api
+    command: npm run dev
+    environment:
+      DATABASE_URL: postgresql://sportsadmin:sportsadmin@postgres:5432/sportsadmin
+      SESSION_SECRET: dev-secret-do-not-use-in-production
+      PORT: 3000
+      APP_ENV: development
+      CORS_ORIGIN: http://localhost:5173
+      LOG_LEVEL: debug
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./api/src:/app/api/src        # hot reload
+      - ./shared:/app/shared
+      - /app/api/node_modules
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+      target: build
+    working_dir: /app/client
+    command: npm run dev -- --host
+    environment:
+      VITE_API_URL: http://localhost:3000
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./client/src:/app/client/src  # hot reload
+      - ./shared:/app/shared
+      - /app/client/node_modules
+      - /app/node_modules
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:

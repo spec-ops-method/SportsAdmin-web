@@ -1,0 +1,14 @@
+{
+  "name": "sportsadmin-web",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "api",
+    "client",
+    "shared"
+  ],
+  "scripts": {
+    "dev": "docker compose up",
+    "test": "npm test --workspaces --if-present"
+  }
+}
