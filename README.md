@@ -92,18 +92,19 @@ The API and client both support **hot reload** — edit files under `api/src/` o
 
 ### Create your first user
 
-The database starts empty. Seed an admin account by setting two environment variables in `.env` and running the seed script:
+The database starts empty. Add these lines to your `.env` file, then run the seed:
 
 ```bash
-# In .env, add:
+# In .env:
 DATABASE_SEED_ADMIN_EMAIL=admin@example.com
-DATABASE_SEED_ADMIN_PASSWORD=yourpassword
+DATABASE_SEED_ADMIN_PASSWORD=changeme
+```
 
-# Then run:
+```bash
 docker compose exec api npm run db:seed
 ```
 
-Log in at http://localhost:5173 with those credentials.
+The seed variables in `.env` are passed into the container via `env_file` in `docker-compose.yml`. Log in at http://localhost:5173 with those credentials.
 
 ### Run without Docker
 

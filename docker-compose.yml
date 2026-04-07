@@ -22,6 +22,8 @@ services:
       target: build
     working_dir: /app/api
     command: npm run dev
+    env_file:
+      - .env
     environment:
       DATABASE_URL: postgresql://sportsadmin:sportsadmin@postgres:5432/sportsadmin
       SESSION_SECRET: dev-secret-do-not-use-in-production
