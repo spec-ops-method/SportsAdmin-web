@@ -2,6 +2,15 @@
 
 A modern web application rebuild of [Sports Administrator](https://github.com/ruddj/SportsAdmin), an open-source school athletics and swimming carnival management system.
 
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center"><img src="artifacts/login.png" width="380" alt="Login screen" /><br/><sub>Login</sub></td>
+    <td align="center"><img src="artifacts/dashboard.png" width="640" alt="Dashboard" /><br/><sub>Dashboard</sub></td>
+  </tr>
+</table>
+
 ## Background
 
 Sports Administrator was originally developed around 2000 by Andrew Rogers for Christian Outreach College, Brisbane (now known as [Citipointe Christian College](https://citipointe.qld.edu.au/)). It was commercially distributed as a Microsoft Access 97 application before being open-sourced and migrated to Access 2010+ by James Rudd in 2017. The application manages the complete lifecycle of a school sports carnival — event setup, competitor registration, results entry, automatic place and points calculation, promotion through heats to finals, record tracking, and reporting.
